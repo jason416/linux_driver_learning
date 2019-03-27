@@ -2,6 +2,7 @@ export ARCH=arm
 ifeq ($(KERNELRELEASE),)
 
 ifeq ($(ARCH),arm)
+	# change these variable's value
 	KERNEL_DIR ?= /home/topeet/itop4412_kernel_4_14_2_bsp/linux-4.14.2_iTop-4412_scp 
 	ROOTFS	?= `pwd` 
 else
@@ -20,10 +21,17 @@ module_install:
 
 clean:
 	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) clean
-	@#rm -rf *.o *.ko *.mod* modules.* Moduele.*
+	@# rm -rf *.o *.ko *.mod* modules.* Moduele.*
 
 else
 
+# change it's value
 obj-m := vserial.o
+
+# if there are multi files related to this $(obj-m):
+# 	1. uncomment this line;
+# 	2. change *.o to real files related to this ko
+
+# hello-objs = *.o
 
 endif
