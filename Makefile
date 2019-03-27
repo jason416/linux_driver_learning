@@ -2,6 +2,7 @@ export ARCH=arm
 ifeq ($(KERNELRELEASE),)
 
 ifeq ($(ARCH),arm)
+	@# change these variable's value
 	KERNEL_DIR ?= /home/topeet/itop4412_kernel_4_14_2_bsp/linux-4.14.2_iTop-4412_scp 
 	ROOTFS	?= `pwd` 
 else
@@ -24,6 +25,13 @@ clean:
 
 else
 
+# change it's value
 obj-m := hello.o
+
+# if there are multi files related to this $(obj-m):
+# 	1. uncomment this line;
+# 	2. change *.o to real files related to this ko
+
+@# hello-objs = *.o
 
 endif
