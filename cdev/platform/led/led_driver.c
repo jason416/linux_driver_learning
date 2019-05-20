@@ -38,7 +38,10 @@ struct led_dev {
 	unsigned int pin;
 	atomic_t available;
 	struct cdev cdev;
+	struct device *dev;
 };
+
+static struct class *led_cls;
 
 static int led_open(struct inode *inode, struct file *filp)
 {
@@ -146,6 +149,13 @@ static int led_probe(struct platform_device *pdev)
 	writel((readl(led->con) & ~(0xf << 4 * led->pin)) | (0x1 << 4 * led->pin), led->con);
 	writel(readl(led->dat) & ~(0x1 << led->pin), led->dat);
 
+	/* create device, to match class(/sys/class/), work with mdev */
+	led->dev = device_create(led_cls, NULL, dev, NULL, "led%d", pdev->id);
+	if(IS_ERR(led->dev)) {
+		ret = PTR_ERR(led->dev);
+		goto dev_err;
+	}
+
 	/* praper data for matched device */
 	platform_set_drvdata(pdev, led);
 
@@ -158,6 +168,7 @@ add_err:
 	kfree(led);
 mem_err:
 	unregister_chrdev_region(dev, 1);
+dev_err:
 reg_err:
 	return ret;
 }
@@ -174,6 +185,7 @@ static int led_remove(struct platform_device *pdev)
 	iounmap(led->con);
 	cdev_del(&led->cdev);
 	kfree(led);
+	device_destroy(led_cls, dev);
 	unregister_chrdev_region(dev, 1);
 
 	return 0;
@@ -188,8 +200,36 @@ struct platform_driver led_drv = {
 	.remove = led_remove,
 };
 
+#if 0
 /* macro defined by linux kernel, to define register and unregister function */
 module_platform_driver(led_drv);
+#else
+static int __init led_init(void)
+{
+	int ret;
+
+	/* create a class, to match dev */
+	led_cls = class_create(THIS_MODULE, LED_DEV_NAME);
+	if(IS_ERR(led_cls)) {
+		return PTR_ERR(led_cls);
+	}
+
+	ret = platform_driver_register(&led_drv);
+	if(ret)
+		class_destroy(led_cls); /* if register failed */
+
+	return ret;
+}
+
+static void __exit led_exit(void)
+{
+	platform_driver_unregister(&led_drv);
+	class_destroy(led_cls);
+}
+
+module_init(led_init);
+module_exit(led_exit);
+#endif
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("jason416 <jason416@foxmail,com>");
