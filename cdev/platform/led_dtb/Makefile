@@ -27,7 +27,7 @@ clean:
 else
 
 # change it's value
-obj-m := led_dev.o led_driver.o
+obj-m := led_driver.o
 
 # if there are multi files related to this $(obj-m):
 # 	1. uncomment this line;
