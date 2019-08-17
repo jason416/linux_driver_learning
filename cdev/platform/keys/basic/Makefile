@@ -3,7 +3,7 @@ ifeq ($(KERNELRELEASE),)
 
 ifeq ($(ARCH),arm)
 	# change these variable's value
-	KERNEL_DIR ?= /home/jason/arm-devlop/itop4412_linux_official 
+	KERNEL_DIR ?= /home/jason/arm-devlop/itop4412_linux_official
 	ROOTFS	?= /home/jason/rootfs 
 else
 	KERNEL_DIR ?= /lib/modules/$(shell uname -r)/build
@@ -21,12 +21,13 @@ modules_install:
 
 clean:
 	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) clean
+	rm -rf a.out test
 	@# rm -rf *.o *.ko *.mod* modules.* Moduele.*
 
 else
 
 # change it's value
-obj-m := vserial.o
+obj-m := key_drv.o
 
 # if there are multi files related to this $(obj-m):
 # 	1. uncomment this line;
@@ -35,3 +36,4 @@ obj-m := vserial.o
 # hello-objs = *.o
 
 endif
+

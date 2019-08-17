@@ -3,8 +3,8 @@ ifeq ($(KERNELRELEASE),)
 
 ifeq ($(ARCH),arm)
 	# change these variable's value
-	KERNEL_DIR ?= /home/topeet/itop4412_kernel_4_14_2_bsp/linux-4.14.2_iTop-4412_scp 
-	ROOTFS	?= `pwd` 
+	KERNEL_DIR ?= /home/jason/arm-devlop/itop4412_linux_official 
+	ROOTFS	?= /home/jason/rootfs 
 else
 	KERNEL_DIR ?= /lib/modules/$(shell uname -r)/build
 endif
@@ -13,8 +13,8 @@ PWD := $(shell pwd)
 
 modules:
 	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) modules
-module_install:
-	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) INSTALL_MOD_PATH=$(ROOTFS) module_install
+modules_install:
+	$(MAKE) -C $(KERNEL_DIR) M=$(PWD) INSTALL_MOD_PATH=$(ROOTFS) modules_install
 
 .PHONY:
 	clean
