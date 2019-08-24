@@ -39,6 +39,7 @@
 #define ADC_MINOR       5 
 #define ADC_DEV_NAME    "adc"
 
+#define AUTO_CREAT_DEV_NODE
 
 /* custom struct to save */
 struct adc_dev {
@@ -52,13 +53,17 @@ struct adc_dev {
     atomic_t available;             /* available */
     unsigned int irq;               /* irq */
     struct cdev cdev;               /* cdev */
-    struct device *device;          /* device */
     struct clk *clk;                /* clock */ 
     unsigned long freq;             /* frequency */
+#ifdef AUTO_CREAT_DEV_NODE
+    struct device *device;          /* device */
+#endif
 };
 
 /* for mdev auto-create class node in /sys */
+#ifdef AUTO_CREAT_DEV_NODE
 static struct class *adc_cls;
+#endif
 
 static int adc_open(struct inode *inode, struct file *filp)
 {
@@ -195,7 +200,7 @@ static int adc_probe(struct platform_device *pdev)
     if(ret)
         goto irq_err;
 
-#if 1
+#if defined(AUTO_CREAT_DEV_NODE)
     DEBUG_INFO("ready to create device in /sys/class(as root).\n");
     /* create device, to match class(/sys/class/), work with mdev */
     adc_dev->device = device_create(adc_cls, NULL, dev, NULL, ADC_DEV_NAME);
@@ -247,8 +252,10 @@ enable_clk_err:
     free_irq(adc_dev->irq, adc_dev);
 get_clk_err:
     clk_put(adc_dev->clk);
+#if defined(AUTO_CREAT_DEV_NODE)
 dev_err:
     device_destroy(adc_cls, dev);
+#endif
 irq_err:
     iounmap(adc_dev->adc_con);
 map_err:
@@ -282,7 +289,9 @@ static int adc_remove(struct platform_device *pdev)
     iounmap(adc_dev->adc_con);
     cdev_del(&adc_dev->cdev);
     kfree(adc_dev);
+#if defined(AUTO_CREAT_DEV_NODE)
     device_destroy(adc_cls, dev);
+#endif
     unregister_chrdev_region(dev, 1);
 
     return 0;
@@ -304,7 +313,7 @@ struct platform_driver adc_drv = {
     .remove = adc_remove,
 };
 
-#if 0
+#if !defined(AUTO_CREAT_DEV_NODE)
 /* macro defined by linux kernel, to define register and unregister function */
 module_platform_driver(adc_drv);
 #else
