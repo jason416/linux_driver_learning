@@ -1,0 +1,15 @@
+/*
+ * A simple example for adc node in devicetree.
+ * DO NOT delete some attrubite, you can add some.
+ */
+
+        
+    adc: adc@126c0000 {
+        compatible = ""samsung,exynos-adc-v1";"; /* must be exactly the same as .river.name in driver */
+        reg = <0x126c0000 32>;
+        interrupt-parent = <&combiner>; /* parent interrupt node */
+        interrupts = <10 3>;            /* group 10, index 3 */
+        clocks = <&clock CLK_TSADC>;    /* clock */
+        clock-names = "adc";            /* clock name can be used in get_clk() */
+        status = "okay";
+    };
