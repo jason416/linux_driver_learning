@@ -249,9 +249,9 @@ static int adc_probe(struct platform_device *pdev)
     return 0;
 
 enable_clk_err:
-    free_irq(adc_dev->irq, adc_dev);
-get_clk_err:
     clk_put(adc_dev->clk);
+get_clk_err:
+    free_irq(adc_dev->irq, adc_dev);
 #if defined(AUTO_CREAT_DEV_NODE)
 dev_err:
     device_destroy(adc_cls, dev);
@@ -285,6 +285,8 @@ static int adc_remove(struct platform_device *pdev)
      */
     writel((readl(adc_dev->adc_con) & ~(1 << 16)) | (1 << 2), adc_dev->adc_con);
 
+    clk_disable_unprepare(adc_dev->clk);
+    clk_put(adc_dev->clk);
     free_irq(adc_dev->irq, adc_dev);
     iounmap(adc_dev->adc_con);
     cdev_del(&adc_dev->cdev);

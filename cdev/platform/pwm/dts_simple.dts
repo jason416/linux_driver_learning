@@ -1,0 +1,54 @@
+/*
+ * A simple information for PWM with samsung exynos4412 .
+ * DO NOT delete some attrubite, you can add some.
+ */
+        
+/*
+ * More in Documentation/pwm.txt.
+ */
+/*************************in exynos4412-pinctrl.dtsi*********/
+	pwm0_out: pwm0-out {
+		samsung,pins = "gpd0-0";
+		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
+		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;      
+		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
+	};
+
+/**************************in xynos4.dtsi********************/
+	pwm: pwm@139D0000 {
+		compatible = "samsung,exynos4210-pwm";
+		reg = <0x139D0000 0x1000>;
+		interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>,                  
+				<GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>,
+				<GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clock CLK_PWM>;
+		clock-names = "timers";
+		#pwm-cells = <3>;
+		status = "disabled";
+	};
+/**************************in exynos4412-itop-elite.dts******/
+	&pwm {                                                                    
+		status = "okay";                                                                                                                                    
+		pinctrl-0 = <&pwm0_out>;                                              
+		pinctrl-names = "default";                                            
+		samsung,pwm-outputs = <0>;                                            
+	};
+	beep {                                                                                                                                              
+		compatible = "pwm-beeper";
+		pwms = <&pwm 0 4000000 PWM_POLARITY_INVERTED>;
+	};
+
+/*********************configuration********************************/	
+	[*] Pulse-Width Modulation (PWM) Support  --->
+	<M>   Samsung PWM support
+	
+    [*] Input device support  --->
+	[*]   Miscellaneous devices  --->
+	<M>   PWM beeper support
+
+/*
+ * When useing beep node with 'PWM beeper support', will create a pwm-beeper.
+ */
+input: pwm-beeper as /devices/platform/beep/input/input0
